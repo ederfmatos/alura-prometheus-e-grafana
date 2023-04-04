@@ -81,6 +81,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/prometheus_data:/prometheus
+      - ./prometheus/alert.rules:/etc/prometheus/alert.rules
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -116,6 +117,20 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
+    networks:
+      - monit
+    depends_on:
+      - alertmanager-forum-api
+
+  alertmanager-forum-api:
+    image: prom/alertmanager
+    container_name: alertmanager-forum-api
+    volumes:
+      - ./alertmanager:/etc/alertmanager/:ro
+    ports:
+      - 9093:9093
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
     networks:
       - monit
     depends_on:
